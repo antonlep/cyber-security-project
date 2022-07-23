@@ -3,7 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
-from .models import Choice, Question
+from django.db import connection
+from .models import Choice, Question, User
 
 
 class IndexView(generic.ListView):
@@ -29,8 +30,10 @@ class ResultsView(generic.DetailView):
 
 def index(request):
     latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    latest_user_list = User.objects.order_by('-id')[:5]
     context = {
         'latest_question_list': latest_question_list,
+        'latest_user_list': latest_user_list,
     }
     return render(request, 'polls/index.html', context)
 
@@ -55,3 +58,10 @@ def vote(request, question_id):
         selected_choice.votes += 1
         selected_choice.save()
     return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+
+
+def your_name(request):
+    name = request.POST['your_name']
+    with connection.cursor() as cursor:
+        cursor.execute(f"INSERT INTO polls_user (name) VALUES('{name}')")
+    return HttpResponseRedirect(reverse('polls:index'))

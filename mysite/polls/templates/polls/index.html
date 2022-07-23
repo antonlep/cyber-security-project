@@ -11,3 +11,18 @@
 {% else %}
 <p>No polls are available.</p>
 {% endif %}
+{% if latest_user_list %}
+<ul>
+    {% for user in latest_user_list %}
+    <li>{{ user.name }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No users are available.</p>
+{% endif %}
+<form action="{% url 'polls:your_name' %}" method="post">
+    {% csrf_token %}
+    <label for="your_name">Your name: </label>
+    <input id="your_name" type="text" name="your_name" value="">
+    <input type="submit" value="OK">
+</form>
