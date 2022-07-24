@@ -48,6 +48,12 @@ def results(request, question_id):
     return render(request, 'polls/results.html', {'question': question})
 
 
+def login_page(request, username):
+    user_name = get_object_or_404(User, name=username)
+    print(user_name)
+    return render(request, 'polls/login_page.html', {'username': user_name.name})
+
+
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:
@@ -60,8 +66,24 @@ def vote(request, question_id):
     return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
 
-def your_name(request):
+def register(request):
     name = request.POST['your_name']
-    with connection.cursor() as cursor:
-        cursor.execute(f"INSERT INTO polls_user (name) VALUES('{name}')")
+    password = request.POST['password']
+    if not User.objects.get(name=name):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"INSERT INTO polls_user (name, password) VALUES('{name}','{password}')")
     return HttpResponseRedirect(reverse('polls:index'))
+
+
+def login(request):
+    username = request.POST['login_name']
+    userpassword = request.POST['login_password']
+    try:
+        user = User.objects.get(name=username)
+        if user.password == userpassword:
+            return HttpResponseRedirect(reverse('polls:login_page', args=(username,)))
+        else:
+            return HttpResponseRedirect(reverse('polls:index'))
+    except:
+        return HttpResponseRedirect(reverse('polls:index'))
