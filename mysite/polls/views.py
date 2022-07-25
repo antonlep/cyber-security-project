@@ -1,31 +1,13 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 from django.db import connection
+from django.contrib.auth import authenticate, login
 from .models import Choice, Question, User
-
-
-class IndexView(generic.ListView):
-    template_name = 'polls/index.html'
-    context_object_name = 'latest_question_list'
-
-    def get_queryset(self):
-        return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
-
-
-class DetailView(generic.DetailView):
-    model = Question
-    template_name = 'polls/detail.html'
-
-    def get_queryset(self):
-        return Question.objects.filter(pub_date__lte=timezone.now())
-
-
-class ResultsView(generic.DetailView):
-    model = Question
-    template_name = 'polls/results.html'
+# from .models import Choice, Question
+# from django.contrib.auth.models import User
 
 
 def index(request):
@@ -49,9 +31,12 @@ def results(request, question_id):
 
 
 def login_page(request, username):
-    user_name = get_object_or_404(User, name=username)
-    print(user_name)
-    return render(request, 'polls/login_page.html', {'username': user_name.name})
+    username = get_object_or_404(User, username=username)
+    return render(request, 'polls/login_page.html', {'username': username})
+    # if str(request.user) == str(username):
+    #     return render(request, 'polls/login_page.html', {'username': username})
+    # else:
+    #     return HttpResponseRedirect(reverse('polls:index'))
 
 
 def vote(request, question_id):
@@ -69,21 +54,31 @@ def vote(request, question_id):
 def register(request):
     name = request.POST['your_name']
     password = request.POST['password']
-    if not User.objects.get(name=name):
+    if not User.objects.filter(username=name).exists():
         with connection.cursor() as cursor:
             cursor.execute(
-                f"INSERT INTO polls_user (name, password) VALUES('{name}','{password}')")
+                f"INSERT INTO polls_user (username, password) VALUES('{name}','{password}')")
+        # new_user = User.objects.create(username=name, password=password)
+        ## new_user = User.objects.create_user(username=name, password=password)
+        ## login(request, new_user)
+
     return HttpResponseRedirect(reverse('polls:index'))
 
 
-def login(request):
+def login_own(request):
     username = request.POST['login_name']
     userpassword = request.POST['login_password']
     try:
-        user = User.objects.get(name=username)
+        user = User.objects.get(username=username)
         if user.password == userpassword:
             return HttpResponseRedirect(reverse('polls:login_page', args=(username,)))
         else:
             return HttpResponseRedirect(reverse('polls:index'))
     except:
         return HttpResponseRedirect(reverse('polls:index'))
+    # user = authenticate(request, username=username, password=userpassword)
+    # if user is not None:
+    #     login(request, user)
+    #     return HttpResponseRedirect(reverse('polls:login_page', args=(username,)))
+    # else:
+    #     return HttpResponseRedirect(reverse('polls:index'))

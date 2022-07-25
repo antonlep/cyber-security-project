@@ -15,7 +15,7 @@
 {% if latest_user_list %}
 <ul>
     {% for user in latest_user_list %}
-    <li>{{ user.name }}</li>
+    <li>{{ user.username }}</li>
     {% endfor %}
 </ul>
 {% else %}
@@ -23,7 +23,7 @@
 {% endif %}
 <p>Register a new user:</p>
 <form action="{% url 'polls:register' %}" method="post">
-    {% csrf_token %}
+    <!-- {% csrf_token %} -->
     <label for="Name">Your name: </label>
     <input id="your_name" type="text" name="your_name" value="">
     <label for="Password">Password: </label>
