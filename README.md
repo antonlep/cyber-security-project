@@ -1,9 +1,11 @@
 Project work for Cyber Security Base course
 
 Project works at least with Python 3.8 and Django 4.0 versions. 
-Download files to your computer, go to directory mysite/ and run command:
+Download files to your computer, go to directory mysite/ and run commands:
 
-‘python manage.py runserver’
+'python manage.py migrate'
+
+'python manage.py runserver'
 
 Then open your browser and go to the address: 
 
