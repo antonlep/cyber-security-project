@@ -9,7 +9,7 @@ Then open your browser and go to the address:
 
 http://127.0.0.1:8000/polls/
 
-Security vulnerabilities (from OWASP 2021 top ten):
+Implemented security vulnerabilities (from OWASP 2021 top ten):
 
 CSRF
 
